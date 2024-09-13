@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/invoice-daily-sales-report/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/invoice-daily-sales-report/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/invoice-daily-sales-report",
+  "projects": {
+    "invoice-daily-sales-report": {
+      "type": "application",
+      "root": "apps/invoice-daily-sales-report",
+      "entryFile": "main",
+      "sourceRoot": "apps/invoice-daily-sales-report/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/invoice-daily-sales-report/tsconfig.app.json"
+      }
+    },
+    "invoice-service": {
+      "type": "application",
+      "root": "apps/invoice-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/invoice-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/invoice-service/tsconfig.app.json"
+      }
+    },
+    "email-sender": {
+      "type": "application",
+      "root": "apps/email-sender",
+      "entryFile": "main",
+      "sourceRoot": "apps/email-sender/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/email-sender/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,92 @@
+
+
+
+services:
+
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'  
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: guest
+      MONGO_INITDB_ROOT_PASSWORD: guest
+
+  
+  invoice-service:
+    build:
+      context: .
+      dockerfile: ./apps/invoice-service/Dockerfile
+      target: development
+    command: npm run start:dev invoice-service
+    env_file:
+      - ./.env
+    environment:
+      - MONGODB_URI = mongodb://mongo:27017/test
+    depends_on:
+      - mongo
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3002:3002'
+
+  email-sender:
+    build:
+      context: .
+      dockerfile: ./apps/email-sender/Dockerfile
+      target: development
+    command: npm run start:dev email-sender
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URI=amqp://guest:guest@localhost:5672/
+      - EMAIL_USER=user@gmail.com  
+      - EMAIL_PASS=user
+      - RECEIVER_EMAIL=user1@gmail.com
+    depends_on:
+      - invoice-service
+      - rabbitmq
+      - mongo
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+
+  invoice-daily-sales-report:
+    build:
+      context: .
+      dockerfile: ./apps/invoice-daily-sales-report/Dockerfile
+      target: development
+    command: npm run start:dev invoice-daily-sales-report
+    ports:
+      - '3001:3001'
+    env_file:
+      - ./.env
+    environment:
+      - MONGODB_URI = mongodb://mongo:27017/test
+      - RABBITMQ_URI=amqp://guest:guest@localhost:5672/
+      - EMAIL_USER=user@gmail.com
+      - EMAIL_PASS=user
+      - RECEIVER_EMAIL=user2@gmail.com      
+    depends_on:
+      - mongo
+      - rabbitmq
+      - invoice-service
+      - email-sender
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+  
+  
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+volumes:
+  mongodb_master_data:
+    driver: local
